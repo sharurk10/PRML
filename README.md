@@ -1,2 +1,0 @@
-# PRML
-PRML Lab Programs 
