@@ -1,533 +1,1127 @@
+import numpy as np
 import matplotlib.pyplot as plt
-data = []
+# ================================================================
+# STEP 1: DATASET LOCATION
+# Function performed:
+# Specify the location of the assigned dataset.
+# ================================================================
 
-with open("noisy_19.txt", "r") as file:
+DATA_FILE = "noisy_19.txt"
+
+# ================================================================
+# STEP 2: CALCULATE MEAN SQUARED ERROR
+# Function performed:
+# Calculate the average squared difference between
+# actual and predicted values.
+#
+# MSE = (1/N) * SUM((actual - predicted)^2)
+# ================================================================
+
+def find_mse(actual, predicted):
+
+    total_error = 0.0
+
+    for i in range(len(actual)):
+
+        error = actual[i] - predicted[i]
+
+        total_error = total_error + error * error
+
+    mse = total_error / len(actual)
+
+    return mse
+#step -3 load dataset
+def load_dataset(filename):
+
+    x = []
+    y = []
+
+    file = open(filename, "r")
     for line in file:
-        values = line.split()
 
-        x_value = float(values[0])
-        y_value = float(values[1])
+        line = line.strip()
 
-        data.append([x_value, y_value])
+        if line == "":
+            continue
 
-print("Number of data points:", len(data))
+        parts = line.split()
 
-print("First 5 data points:")
-for i in range(5):
-    print(data[i])
+        if len(parts) >= 2:
 
-# Separate x and y values
+            x_value = float(parts[0])
 
-x = []
-y = []
+            y_value = float(parts[1])
 
-for point in data:
-    x.append(point[0])
-    y.append(point[1])
+            x.append(x_value)
 
-print("\nNumber of x values:", len(x))
-print("Number of y values:", len(y))
+            y.append(y_value)
 
-print("First 5 x values:", x[:5])
-print("First 5 y values:", y[:5])
+    file.close()
 
-# Find minimum and maximum values
+    return x, y
+#step 4-:splitting dataset
+def create_split(x, y):
 
-x_min = min(x)
-x_max = max(x)
+    x_train = []
+    y_train = []
 
-y_min = min(y)
-y_max = max(y)
+    x_test = []
+    y_test = []
 
-print("\nMinimum x:", x_min)
-print("Maximum x:", x_max)
+    x_validation = []
+    y_validation = []
 
-print("Minimum y:", y_min)
-print("Maximum y:", y_max)
+    total = len(x)
 
-# Normalize x using Min-Max normalization
+    # ------------------------------------------------------------
+    # Divide the dataset
+    # ------------------------------------------------------------
 
-x_normalized = []
+    for i in range(total):
 
-for value in x:
-    normalized_value = (value - x_min) / (x_max - x_min)
-    x_normalized.append(normalized_value)
+        # --------------------------------------------------------
+        # Every 10th sample is used for validation
+        # --------------------------------------------------------
 
-print("\nFirst 5 normalized x values:")
-print(x_normalized[:5])
+        if i % 10 == 0:
 
-print("Minimum normalized x:", min(x_normalized))
-print("Maximum normalized x:", max(x_normalized))
+            x_validation.append(x[i])
 
-# Combine normalized x and y into pairs
+            y_validation.append(y[i])
 
-normalized_data = []
+        # --------------------------------------------------------
+        # Every 10th sample starting from index 1 is used
+        # for testing
+        # --------------------------------------------------------
 
-for i in range(len(x_normalized)):
-    normalized_data.append([x_normalized[i], y[i]])
+        elif i % 10 == 1:
 
-print("\nNumber of normalized data points:", len(normalized_data))
-print("First 5 normalized data points:")
+            x_test.append(x[i])
 
-for i in range(5):
-    print(normalized_data[i])
+            y_test.append(y[i])
 
-import random
+        # --------------------------------------------------------
+        # Remaining samples are used for training
+        # --------------------------------------------------------
 
-# Set a fixed seed so that the same split is obtained every time
-random.seed(42)
+        else:
 
-# Shuffle the data
-random.shuffle(normalized_data)
+            x_train.append(x[i])
 
+            y_train.append(y[i])
 
-# Split the data into training, test and validation sets
+    return (x_train, y_train, x_test, y_test,
+            x_validation, y_validation)
+#step 5: creating matrix
+def create_polynomial_matrix(x, degree):
 
-train_data = normalized_data[:7000]
-test_data = normalized_data[7000:8500]
-validation_data = normalized_data[8500:]
+    matrix = []
 
-print("\nTraining samples:", len(train_data))
-print("Test samples:", len(test_data))
-print("Validation samples:", len(validation_data))
+    # ------------------------------------------------------------
+    # Create one polynomial row for every x value
+    # ------------------------------------------------------------
 
-# Separate x and y for each dataset
-
-x_train = []
-y_train = []
-
-for point in train_data:
-    x_train.append(point[0])
-    y_train.append(point[1])
-
-
-x_test = []
-y_test = []
-
-for point in test_data:
-    x_test.append(point[0])
-    y_test.append(point[1])
-
-
-x_validation = []
-y_validation = []
-
-for point in validation_data:
-    x_validation.append(point[0])
-    y_validation.append(point[1])
-
-
-print("\nTraining x values:", len(x_train))
-print("Training y values:", len(y_train))
-
-print("Test x values:", len(x_test))
-print("Test y values:", len(y_test))
-
-print("Validation x values:", len(x_validation))
-print("Validation y values:", len(y_validation))
-
-# Create polynomial features
-
-def create_polynomial_features(x_values, degree):
-
-    X = []
-
-    for value in x_values:
+    for value in x:
 
         row = []
 
+        # --------------------------------------------------------
+        # Create powers:
+        #
+        # x^0, x^1, x^2, ..., x^degree
+        # --------------------------------------------------------
+
         for power in range(degree + 1):
+
             row.append(value ** power)
 
-        X.append(row)
+        matrix.append(row)
 
-    return X
+    # ------------------------------------------------------------
+    # Convert the matrix into a NumPy array
+    # so that matrix operations can be performed.
+    # ------------------------------------------------------------
 
-# Matrix multiplication
+    return np.array(matrix, dtype=float)
+
+
+# ================================================================
+# STEP 6: TRANSPOSE MATRIX
+# Function performed:
+# Calculate the transpose of the polynomial design matrix.
+#
+# Example:
+#
+# X = [1  x1]
+#     [1  x2]
+#     [1  x3]
+#
+# X^T = [1  1  1]
+#       [x1 x2 x3]
+#
+# The transpose is calculated using NumPy.
+# ================================================================
+
+def transpose(matrix):
+
+    return np.transpose(matrix)
+# ================================================================
+# STEP 7: MATRIX MULTIPLICATION
+# Function performed:
+# Multiply two matrices.
+#
+# This function is used to calculate:
+#
+# X^T X
+#
+# and
+#
+# X^T y
+#
+# The multiplication is implemented manually.
+# ================================================================
 
 def matrix_multiply(A, B):
 
     rows_A = len(A)
-    cols_A = len(A[0])
+
+    columns_A = len(A[0])
 
     rows_B = len(B)
-    cols_B = len(B[0])
 
-    if cols_A != rows_B:
-        raise ValueError("Matrix dimensions are not compatible")
+    columns_B = len(B[0])
+
+    # ------------------------------------------------------------
+    # Check whether matrix multiplication is possible
+    # ------------------------------------------------------------
+
+    if columns_A != rows_B:
+
+        print("Matrix multiplication error.")
+
+        return None
 
     result = []
 
+    # ------------------------------------------------------------
+    # Perform matrix multiplication
+    # ------------------------------------------------------------
+
     for i in range(rows_A):
+
         row = []
 
-        for j in range(cols_B):
+        for j in range(columns_B):
+
             total = 0.0
 
-            for k in range(cols_A):
-                total += A[i][k] * B[k][j]
+            for k in range(columns_A):
+
+                total = (
+                    total
+                    +
+                    A[i][k] * B[k][j]
+                )
 
             row.append(total)
 
         result.append(row)
 
-    return result
+    return np.array(result, dtype=float)
+# ================================================================
+# STEP 8: FIT POLYNOMIAL REGRESSION MODEL
+# Function performed:
+# Calculate polynomial regression coefficients using
+# the Least Squares Normal Equation.
+#
+# Normal Equation:
+#
+# w = (X^T X)^(-1) X^T y
+#
+# NumPy inverse is used to calculate:
+#
+# (X^T X)^(-1)
 
-# Matrix transpose
+def fit_polynomial(x_train, y_train, degree):
 
-def transpose(A):
+    # ------------------------------------------------------------
+    # Create polynomial design matrix using ORIGINAL X values
+    # ------------------------------------------------------------
 
-    rows = len(A)
-    cols = len(A[0])
+    X = create_polynomial_matrix(
+        x_train,
+        degree
+    )
 
-    result = []
+    # ------------------------------------------------------------
+    # Convert y values into a column matrix
+    # ------------------------------------------------------------
 
-    for j in range(cols):
-        row = []
+    Y = []
 
-        for i in range(rows):
-            row.append(A[i][j])
+    for value in y_train:
 
-        result.append(row)
+        Y.append([value])
 
-    return result
+    Y = np.array(Y, dtype=float)
+    XT = transpose(X)
+    A = matrix_multiply(
+        XT,
+        X
+    )
+    b = matrix_multiply(
+        XT,
+        Y
+    )
 
-# Matrix inverse using Gauss-Jordan elimination
+    # ------------------------------------------------------------
+    # Calculate inverse of X^T X
+    #
+    # (X^T X)^(-1)
+    #
+    # NumPy inverse is used here.
+    # ------------------------------------------------------------
 
-def matrix_inverse(A):
+    inverse_A = np.linalg.inv(A)
+    weights = inverse_A @ b
 
-    n = len(A)
+    # ------------------------------------------------------------
+    # Convert the column matrix into a one-dimensional array
+    # ------------------------------------------------------------
 
-    # Create augmented matrix [A | I]
-    augmented = []
+    weights = weights.flatten()
 
-    for i in range(n):
-        row = []
-
-        for j in range(n):
-            row.append(float(A[i][j]))
-
-        for j in range(n):
-            if i == j:
-                row.append(1.0)
-            else:
-                row.append(0.0)
-
-        augmented.append(row)
-
-    # Gauss-Jordan elimination
-    for i in range(n):
-
-        # Find a suitable pivot
-        pivot = i
-
-        for j in range(i + 1, n):
-            if abs(augmented[j][i]) > abs(augmented[pivot][i]):
-                pivot = j
-
-        # Check whether matrix is singular
-        if abs(augmented[pivot][i]) < 1e-12:
-            raise ValueError("Matrix is singular and cannot be inverted")
-
-        # Swap rows
-        augmented[i], augmented[pivot] = augmented[pivot], augmented[i]
-
-        # Make pivot equal to 1
-        pivot_value = augmented[i][i]
-
-        for j in range(2 * n):
-            augmented[i][j] /= pivot_value
-
-        # Make other entries in this column zero
-        for k in range(n):
-
-            if k != i:
-
-                factor = augmented[k][i]
-
-                for j in range(2 * n):
-                    augmented[k][j] -= factor * augmented[i][j]
-
-    # Extract inverse matrix
-    inverse = []
-
-    for i in range(n):
-        row = []
-
-        for j in range(n, 2 * n):
-            row.append(augmented[i][j])
-
-        inverse.append(row)
-
-    return inverse
-
-# Predict output using the polynomial coefficients
-
-def predict(X, weights):
+    return weights
+#Step 9 Predicting outputs
+def predict_values(x, weights):
 
     predictions = []
 
-    for row in X:
+    # ------------------------------------------------------------
+    # Determine polynomial degree
+    # ------------------------------------------------------------
 
-        value = 0.0
+    degree = len(weights) - 1
 
-        for j in range(len(weights)):
-            value += row[j] * weights[j][0]
+    # ------------------------------------------------------------
+    # Predict y for each x value
+    # ------------------------------------------------------------
 
-        predictions.append(value)
+    for value in x:
+
+        prediction = 0.0
+
+        # --------------------------------------------------------
+        # Calculate:
+        #
+        # w0 + w1*x + w2*x^2 + ... + wn*x^n
+        # --------------------------------------------------------
+
+        for power in range(degree + 1):
+
+            prediction = (
+                prediction
+                +
+                weights[power]
+                *
+                (value ** power)
+            )
+
+        predictions.append(prediction)
 
     return predictions
 
 
-# Calculate Mean Squared Error
+# ================================================================
+# STEP 10: CALCULATE RMSE
+# Function performed:
+# Calculate Root Mean Squared Error.
+#
+# RMSE = sqrt(MSE)
+# ================================================================
 
-def calculate_mse(actual, predicted):
+def calculate_rmse(mse):
 
-    total_error = 0.0
+    return mse ** 0.5
+
+
+# ================================================================
+# STEP 11: CALCULATE R-SQUARED
+# Function performed:
+# Calculate R-squared.
+#
+# R^2 = 1 - SSE / SST
+#
+# Higher R^2 generally indicates a better fit.
+# ================================================================
+
+def calculate_r_squared(actual, predicted):
+
+    # ------------------------------------------------------------
+    # Calculate mean of actual y values
+    #
+    # NOTE:
+    # This is NOT normalization.
+    # It is only required for calculating R^2.
+    # ------------------------------------------------------------
+
+    total = 0.0
+
+    for value in actual:
+
+        total = total + value
+
+    mean = total / len(actual)
+
+    # ------------------------------------------------------------
+    # Calculate SSE
+    #
+    # SSE = SUM((actual - predicted)^2)
+    # ------------------------------------------------------------
+
+    sse = 0.0
 
     for i in range(len(actual)):
+
         error = actual[i] - predicted[i]
-        total_error += error ** 2
 
-    mse = total_error / len(actual)
+        sse = (
+            sse
+            +
+            error * error
+        )
 
-    return mse
+    # ------------------------------------------------------------
+    # Calculate SST
+    #
+    # SST = SUM((actual - mean)^2)
+    # ------------------------------------------------------------
 
-# Run polynomial regression for a given degree
+    sst = 0.0
 
-def run_polynomial_regression(degree):
+    for value in actual:
 
-    # Create polynomial features for training data
-    X_train = create_polynomial_features(x_train, degree)
+        difference = value - mean
 
-    # Create polynomial features for test data
-    X_test = create_polynomial_features(x_test, degree)
+        sst = (
+            sst
+            +
+            difference * difference
+        )
 
-    # Convert training y values into a column matrix
-    y_train_matrix = []
+    # ------------------------------------------------------------
+    # Avoid division by zero
+    # ------------------------------------------------------------
 
-    for value in y_train:
-        y_train_matrix.append([value])
+    if sst == 0:
 
-    # Calculate X^T
-    X_transpose = transpose(X_train)
+        return 0.0
 
-    # Calculate X^T X
-    X_transpose_X = matrix_multiply(X_transpose, X_train)
+    # ------------------------------------------------------------
+    # Calculate R-squared
+    # ------------------------------------------------------------
 
-    # Calculate X^T y
-    X_transpose_y = matrix_multiply(X_transpose, y_train_matrix)
+    r_squared = 1.0 - (sse / sst)
 
-    # Calculate (X^T X)^-1
-    X_transpose_X_inverse = matrix_inverse(X_transpose_X)
+    return r_squared
 
-    # Calculate weights
-    weights = matrix_multiply(
-        X_transpose_X_inverse,
-        X_transpose_y
-    )
 
-    # Make predictions
-    train_predictions = predict(X_train, weights)
-    test_predictions = predict(X_test, weights)
+# ================================================================
+# STEP 12: PRINT POLYNOMIAL EQUATION
+# Function performed:
+# Display the learned polynomial equation using the
+# calculated regression coefficients.
+# ================================================================
 
-    # Calculate MSE
-    train_mse = calculate_mse(y_train, train_predictions)
-    test_mse = calculate_mse(y_test, test_predictions)
+def print_polynomial(weights):
 
-    return weights, train_mse, test_mse
+    degree = len(weights) - 1
 
-# Compare different polynomial degrees
+    print()
 
-print("\nPolynomial Degree Comparison")
-print("-----------------------------------------")
-print("Degree\tTraining MSE\tTest MSE")
+    print("Polynomial Equation:")
 
-results = []
+    equation = "y = "
 
-for degree in range(1, 11):
+    # ------------------------------------------------------------
+    # Construct polynomial equation
+    # ------------------------------------------------------------
 
-    weights, train_mse, test_mse = run_polynomial_regression(degree)
+    for i in range(degree + 1):
 
-    results.append([degree, train_mse, test_mse])
+        coefficient = weights[i]
+
+        # --------------------------------------------------------
+        # Constant term
+        # --------------------------------------------------------
+
+        if i == 0:
+
+            equation = equation + (
+                str(round(coefficient, 6))
+            )
+
+        else:
+
+            # ----------------------------------------------------
+            # Positive coefficient
+            # ----------------------------------------------------
+
+            if coefficient >= 0:
+
+                equation = equation + " + "
+
+            # ----------------------------------------------------
+            # Negative coefficient
+            # ----------------------------------------------------
+
+            else:
+
+                equation = equation + " - "
+
+                coefficient = -coefficient
+
+            equation = equation + (
+                str(round(coefficient, 6))
+            )
+
+            equation = equation + "*x"
+
+            # ----------------------------------------------------
+            # Add exponent for powers greater than 1
+            # ----------------------------------------------------
+
+            if i > 1:
+
+                equation = (
+                    equation
+                    +
+                    "^"
+                    +
+                    str(i)
+                )
+
+    print(equation)
+
+
+# ================================================================
+# STEP 13: PLOT THE FITTED POLYNOMIAL CURVE
+# Function performed:
+# Plot the original data points and the fitted polynomial curve.
+#
+# ORIGINAL X VALUES ARE USED DIRECTLY.
+# NO NORMALIZATION OR STANDARDIZATION IS PERFORMED.
+# ================================================================
+
+def plot_fitted_curve(x, y, weights, degree):
+    # Sort x values so the fitted curve is drawn smoothly.
+    sorted_x = sorted(x)
+
+    # Calculate fitted y values using the selected polynomial.
+    fitted_y = predict_values(sorted_x, weights)
+
+    # Create the graph.
+    plt.figure(figsize=(10, 6))
+
+    # Plot the original noisy observations.
+    plt.scatter(x, y, s=8, alpha=0.4, label="Original Data")
+
+    # Plot the fitted polynomial curve.
+    plt.plot(sorted_x, fitted_y, linewidth=2, color='orange', label="Fitted Polynomial")
+
+    # Add title and axis labels.
+    plt.title("Polynomial Regression - Fitted Curve")
+    plt.xlabel("x")
+    plt.ylabel("y")
+
+    # Display the selected polynomial degree.
+    plt.text(0.02, 0.95, "Polynomial Degree = " + str(degree),
+             transform=plt.gca().transAxes)
+
+    # Add legend, grid and display the graph.
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+# ================================================================
+# STEP 13: RUN REQUIRED ASSIGNMENT
+# Function performed:
+# Train polynomial regression models for degrees 1 to 15.
+#
+# The TEST SET is used to select the best polynomial degree.
+#
+# The VALIDATION SET is not used for model selection.
+# ================================================================
+
+def run_assignment(x, y):
+
+    print()
+
+    print("=" * 75)
+
+    print("POLYNOMIAL REGRESSION")
+
+    print("=" * 75)
+
+    # ------------------------------------------------------------
+    # Split dataset into training, testing and validation sets
+    # ------------------------------------------------------------
+
+    (
+        x_train,y_train,x_test,y_test,x_validation,y_validation
+    ) = create_split(x, y)
+
+    # ------------------------------------------------------------
+    # Display dataset sizes
+    # ------------------------------------------------------------
+
+    print()
 
     print(
-        degree,
-        "\t",
-        train_mse,
-        "\t",
-        test_mse
+        "Total samples      :",
+        len(x)
     )
-#############################################################
-# Select the best polynomial degree based on test MSE
 
-# Select the degree with the lowest test MSE
+    print(
+        "Training samples   :",
+        len(x_train)
+    )
 
-best_result = results[0]
+    print(
+        "Testing samples    :",
+        len(x_test)
+    )
 
-for result in results:
-    if result[2] < best_result[2]:
-        best_result = result
+    print(
+        "Validation samples :",
+        len(x_validation)
+    )
 
-best_degree = best_result[0]
-best_test_mse = best_result[2]
+    # ------------------------------------------------------------
+    # Initialize variables for best model
+    # ------------------------------------------------------------
 
-print("\nSelected polynomial degree:", best_degree)
-print("Best test MSE:", best_test_mse)
+    best_degree = None
 
-# Create polynomial features for the selected degree
+    best_test_mse = float("inf")
 
-X_train_best = create_polynomial_features(
-    x_train,
-    best_degree
-)
+    best_weights = None
 
-X_validation_best = create_polynomial_features(
-    x_validation,
-    best_degree
-)
+    # ------------------------------------------------------------
+    # Display degree comparison heading
+    # ------------------------------------------------------------
 
-# Convert training y values into a column matrix
+    print()
 
-y_train_matrix = []
+    print("=" * 75)
 
-for value in y_train:
-    y_train_matrix.append([value])
+    print("DEGREE COMPARISON")
+
+    print("=" * 75)
+
+    print()
+
+    print(
+        "{:>8} | {:>18} | {:>18}".format(
+            "Degree",
+            "Train MSE",
+            "Test MSE"
+        )
+    )
+
+    print("-" * 75)
+
+    # ------------------------------------------------------------
+    # Test polynomial degrees from 1 to 15
+    # ------------------------------------------------------------
+
+    for degree in range(1, 16):
+
+        try:
+
+            # ----------------------------------------------------
+            # Train polynomial regression model
+            # ----------------------------------------------------
+
+            weights = fit_polynomial(
+                x_train,
+                y_train,
+                degree
+            )
+
+            # ----------------------------------------------------
+            # Predict training values
+            # ----------------------------------------------------
+
+            train_prediction = predict_values(
+                x_train,
+                weights
+            )
+
+            # ----------------------------------------------------
+            # Predict testing values
+            # ----------------------------------------------------
+
+            test_prediction = predict_values(
+                x_test,
+                weights
+            )
+
+            # ----------------------------------------------------
+            # Calculate training MSE
+            # ----------------------------------------------------
+
+            train_error = find_mse(
+                y_train,
+                train_prediction
+            )
+
+            # ----------------------------------------------------
+            # Calculate testing MSE
+            # ----------------------------------------------------
+
+            test_error = find_mse(
+                y_test,
+                test_prediction
+            )
+
+            # ----------------------------------------------------
+            # Display results for current degree
+            # ----------------------------------------------------
+
+            print(
+                "{:>8} | {:>18.6f} | {:>18.6f}".format(
+                    degree,
+                    train_error,
+                    test_error
+                )
+            )
+
+            # ----------------------------------------------------
+            # Select degree having the lowest Test MSE
+            # ----------------------------------------------------
+
+            if test_error < best_test_mse:
+
+                best_test_mse = test_error
+
+                best_degree = degree
+
+                best_weights = weights
+
+        except np.linalg.LinAlgError:
+
+            # ----------------------------------------------------
+            # Handle singular matrix
+            # ----------------------------------------------------
+
+            print(
+                "{:>8} | Matrix inversion failed".format(
+                    degree
+                )
+            )
+
+    print("-" * 75)
+
+    # ------------------------------------------------------------
+    # Display the best model
+    # ------------------------------------------------------------
+
+    print()
+
+    print("=" * 75)
+
+    print("BEST MODEL")
+
+    print("=" * 75)
+
+    print()
+
+    print(
+        "Best polynomial degree:",
+        best_degree
+    )
+
+    print()
+
+    print(
+        "Best test MSE:",
+        best_test_mse
+    )
+
+    print()
+
+    print(
+        "Best test RMSE:",
+        calculate_rmse(best_test_mse)
+    )
+
+    # ------------------------------------------------------------
+    # Display polynomial equation
+    # ------------------------------------------------------------
+
+    print_polynomial(
+        best_weights
+    )
+
+    # ------------------------------------------------------------
+    # Display regression coefficients
+    # ------------------------------------------------------------
+
+    print()
+
+    print("Regression Coefficients:")
+
+    print("-" * 40)
+
+    for i in range(len(best_weights)):
+
+        print(
+            "w{} = {:.10f}".format(
+                i,
+                best_weights[i]
+            )
+        )
+
+    print("-" * 40)
+
+    # ------------------------------------------------------------
+    # Predict validation data using the selected model
+    # ------------------------------------------------------------
+
+    validation_prediction = predict_values(
+        x_validation,
+        best_weights
+    )
+
+    # ------------------------------------------------------------
+    # Calculate validation MSE
+    # ------------------------------------------------------------
+
+    validation_mse = find_mse(
+        y_validation,
+        validation_prediction
+    )
+
+    # ------------------------------------------------------------
+    # Calculate validation RMSE
+    # ------------------------------------------------------------
+
+    validation_rmse = calculate_rmse(
+        validation_mse
+    )
+
+    # ------------------------------------------------------------
+    # Calculate validation R-squared
+    # ------------------------------------------------------------
+
+    validation_r_squared = calculate_r_squared(
+        y_validation,
+        validation_prediction
+    )
+
+    # ------------------------------------------------------------
+    # Display final validation results
+    # ------------------------------------------------------------
+
+    print()
+
+    print("=" * 75)
+
+    print("FINAL VALIDATION RESULTS")
+
+    print("=" * 75)
+
+    print()
+
+    print(
+        "Selected polynomial degree :",
+        best_degree
+    )
+
+    print()
+
+    print(
+        "Validation MSE             :",
+        validation_mse
+    )
+
+    print()
+
+    print(
+        "Validation RMSE            :",
+        validation_rmse
+    )
+
+    print()
+
+    print(
+        "Validation R-squared       :",
+        validation_r_squared
+    )
+
+    print()
+
+    print("=" * 75)
+
+    # ------------------------------------------------------------
+    # Display sample validation predictions
+    # ------------------------------------------------------------
+
+    print()
+
+    print("SAMPLE VALIDATION PREDICTIONS")
+
+    print("-" * 75)
+
+    print(
+        "{:>15} {:>20} {:>20}".format(
+            "x",
+            "Actual y",
+            "Predicted y"
+        )
+    )
+
+    print("-" * 75)
+
+    number_to_display = 10
+
+    if len(x_validation) < number_to_display:
+
+        number_to_display = len(x_validation)
+
+    # ------------------------------------------------------------
+    # Display first 10 validation predictions
+    # ------------------------------------------------------------
+
+    for i in range(number_to_display):
+
+        print(
+            "{:>15.6f} {:>20.6f} {:>20.6f}".format(
+                x_validation[i],
+                y_validation[i],
+                validation_prediction[i]
+            )
+        )
+
+    print("-" * 75)
+
+    # ------------------------------------------------------------
+    # Return final results
+    # ------------------------------------------------------------
+
+    return (
+        best_degree,
+        best_weights,
+        validation_mse,
+        validation_rmse,
+        validation_r_squared
+    )
+#Additional
+def additional_experiment(x, y):
+
+    print()
+
+    print("=" * 75)
+
+    print("ADDITIONAL DEGREE EXPERIMENT")
+
+    print("=" * 75)
+
+    # ------------------------------------------------------------
+    # Split dataset
+    # ------------------------------------------------------------
+
+    (
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        x_validation,
+        y_validation
+    ) = create_split(x, y)
+
+    # ------------------------------------------------------------
+    # Polynomial degrees used for additional experiment
+    #
+    # High degrees are avoided because raw x values are used
+    # without normalization.
+    # ------------------------------------------------------------
+
+    degrees = [
+        1,
+        2,
+        3,
+        5,
+        8,
+        10,
+        15
+    ]
+
+    print()
+
+    print(
+        "{:>8} | {:>18} | {:>18} | {:>18}".format(
+            "Degree",
+            "Train MSE",
+            "Test MSE",
+            "Validation MSE"
+        )
+    )
+
+    print("-" * 80)
+
+    # ------------------------------------------------------------
+    # Train each selected polynomial degree
+    # ------------------------------------------------------------
+
+    for degree in degrees:
+
+        try:
+
+            # ----------------------------------------------------
+            # Train model
+            # ----------------------------------------------------
+
+            weights = fit_polynomial(
+                x_train,
+                y_train,
+                degree
+            )
+
+            # ----------------------------------------------------
+            # Training prediction
+            # ----------------------------------------------------
+
+            train_prediction = predict_values(
+                x_train,
+                weights
+            )
+
+            # ----------------------------------------------------
+            # Testing prediction
+            # ----------------------------------------------------
+
+            test_prediction = predict_values(
+                x_test,
+                weights
+            )
+
+            # ----------------------------------------------------
+            # Validation prediction
+            # ----------------------------------------------------
+
+            validation_prediction = predict_values(
+                x_validation,
+                weights
+            )
+
+            # ----------------------------------------------------
+            # Calculate training MSE
+            # ----------------------------------------------------
+
+            train_mse = find_mse(
+                y_train,
+                train_prediction
+            )
+
+            # ----------------------------------------------------
+            # Calculate testing MSE
+            # ----------------------------------------------------
+
+            test_mse = find_mse(
+                y_test,
+                test_prediction
+            )
+
+            # ----------------------------------------------------
+            # Calculate validation MSE
+            # ----------------------------------------------------
+
+            validation_mse = find_mse(
+                y_validation,
+                validation_prediction
+            )
+
+            # ----------------------------------------------------
+            # Display results
+            # ----------------------------------------------------
+
+            print(
+                "{:>8} | {:>18.6f} | {:>18.6f} | {:>18.6f}".format(
+                    degree,
+                    train_mse,
+                    test_mse,
+                    validation_mse
+                )
+            )
+
+        except np.linalg.LinAlgError:
+
+            print(
+                "{:>8} | Matrix inversion failed".format(
+                    degree
+                )
+            )
+
+    print("-" * 80)
 
 
-# Calculate X^T
+# ================================================================
+# STEP 15: MAIN PROGRAM
+# Function performed:
+# Load the dataset and execute the complete experiment.
+# ================================================================
 
-X_transpose = transpose(X_train_best)
+if __name__ == "__main__":
 
-# Calculate X^T X
+    # ------------------------------------------------------------
+    # Load the dataset
+    # ------------------------------------------------------------
 
-X_transpose_X = matrix_multiply(
-    X_transpose,
-    X_train_best
-)
+    print()
 
-# Calculate X^T y
+    print("Reading dataset...")
 
-X_transpose_y = matrix_multiply(
-    X_transpose,
-    y_train_matrix
-)
+    x_values, y_values = load_dataset(
+        DATA_FILE
+    )
 
-# Calculate inverse of X^T X
+    # ------------------------------------------------------------
+    # Check whether dataset was loaded
+    # ------------------------------------------------------------
 
-X_transpose_X_inverse = matrix_inverse(
-    X_transpose_X
-)
+    if len(x_values) == 0:
 
-# Calculate the weights
+        print("Error: Dataset could not be loaded.")
 
-best_weights = matrix_multiply(
-    X_transpose_X_inverse,
-    X_transpose_y
-)
+    else:
 
-# Predict the validation data
+        # --------------------------------------------------------
+        # Display number of samples
+        # --------------------------------------------------------
 
-validation_predictions = predict(
-    X_validation_best,
-    best_weights
-)
+        print("Dataset loaded:", len(x_values), "samples")
 
-# Calculate validation MSE
+        # --------------------------------------------------------
+        # Run the required assignment experiment
+        # --------------------------------------------------------
 
-validation_mse = calculate_mse(
-    y_validation,
-    validation_predictions
-)
+        results = run_assignment(
+            x_values,
+            y_values
+        )
 
-print("\nValidation MSE:", validation_mse)
+        # --------------------------------------------------------
+        # Run additional experiment
+        # --------------------------------------------------------
 
-# Display the coefficients of the selected polynomial
+        additional_experiment(x_values, y_values)
 
-print("\nCoefficients of the selected degree-8 polynomial:")
+        # --------------------------------------------------------
+        # Display the fitted polynomial curve
+        # --------------------------------------------------------
 
-for i in range(len(best_weights)):
-    print("w" + str(i) + " =", best_weights[i][0])
-
-
-import math
-
-validation_rmse = math.sqrt(validation_mse)
-
-print("Validation RMSE:", validation_rmse)
-
-
-
-# Plot the original data and the selected polynomial
-
-x_plot = []
-
-for i in range(500):
-    value = i / 499
-    x_plot.append(value)
-
-X_plot = create_polynomial_features(x_plot, best_degree)
-
-y_plot = predict(X_plot, best_weights)
-
-# Plot training data and selected polynomial
-
-plt.figure(figsize=(10, 6))
-
-plt.scatter(
-    x_train,
-    y_train,
-    s=5,
-    label="Training data"
-)
-
-plt.plot(
-    x_plot,
-    y_plot,
-    linewidth=2,
-    label="Degree 8 polynomial"
-)
-
-plt.xlabel("Normalized x")
-plt.ylabel("y")
-plt.title("Team 19 - Degree 8 Polynomial Regression")
-plt.legend()
-plt.grid(True)
-
-plt.show()
-
-###########################
-# Plot MSE versus polynomial degree
-
-degrees = []
-training_errors = []
-test_errors = []
-
-for result in results:
-    degrees.append(result[0])
-    training_errors.append(result[1])
-    test_errors.append(result[2])
-
-plt.figure(figsize=(10, 6))
-
-plt.plot(
-    degrees,
-    training_errors,
-    marker="o",
-    label="Training MSE"
-)
-
-plt.plot(
-    degrees,
-    test_errors,
-    marker="o",
-    label="Test MSE"
-)
-
-plt.xlabel("Polynomial Degree")
-plt.ylabel("Mean Squared Error")
-plt.title("Team 19 - MSE vs Polynomial Degree")
-plt.legend()
-plt.grid(True)
-
-plt.show()
+        plot_fitted_curve(x_values, y_values, results[1], results[0])
