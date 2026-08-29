@@ -505,7 +505,66 @@ def print_polynomial(weights):
 
 
 # ================================================================
-# STEP 13: PLOT THE FITTED POLYNOMIAL CURVE
+# STEP 13: PLOT MSE VS POLYNOMIAL DEGREE
+# Function performed:
+# Plot Training MSE and Test MSE for each polynomial degree
+# to visualise model performance and the bias-variance tradeoff.
+# ================================================================
+
+def plot_mse_vs_degree(degrees, train_mse_list, test_mse_list, best_degree):
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # --------------------------------------------------------
+    # Plot Training MSE
+    # --------------------------------------------------------
+    ax.plot(
+        degrees,
+        train_mse_list,
+        marker='o',
+        linewidth=2,
+        color='#1f77b4',
+        label='Training MSE'
+    )
+
+    # --------------------------------------------------------
+    # Plot Test MSE
+    # --------------------------------------------------------
+    ax.plot(
+        degrees,
+        test_mse_list,
+        marker='s',
+        linewidth=2,
+        color='#ff7f0e',
+        label='Test MSE'
+    )
+
+    # --------------------------------------------------------
+    # Highlight the best degree with a vertical dashed line
+    # --------------------------------------------------------
+    ax.axvline(
+        x=best_degree,
+        color='red',
+        linestyle='--',
+        linewidth=1.5,
+        label='Best Degree = ' + str(best_degree)
+    )
+
+    # --------------------------------------------------------
+    # Labels, title and formatting
+    # --------------------------------------------------------
+    ax.set_title('Model Performance: MSE vs Polynomial Degree', fontsize=14, fontweight='bold')
+    ax.set_xlabel('Polynomial Degree', fontsize=12)
+    ax.set_ylabel('Mean Squared Error (MSE)', fontsize=12)
+    ax.set_xticks(degrees)
+    ax.legend(fontsize=11)
+    ax.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.show()
+
+
+# ================================================================
+# STEP 14: PLOT THE FITTED POLYNOMIAL CURVE
 # Function performed:
 # Plot the original data points and the fitted polynomial curve.
 #
@@ -610,6 +669,14 @@ def run_assignment(x, y):
     best_weights = None
 
     # ------------------------------------------------------------
+    # Lists to collect MSE values for the performance graph
+    # ------------------------------------------------------------
+
+    plot_degrees = []
+    plot_train_mse = []
+    plot_test_mse = []
+
+    # ------------------------------------------------------------
     # Display degree comparison heading
     # ------------------------------------------------------------
 
@@ -700,6 +767,14 @@ def run_assignment(x, y):
             )
 
             # ----------------------------------------------------
+            # Collect MSE values for the performance graph
+            # ----------------------------------------------------
+
+            plot_degrees.append(degree)
+            plot_train_mse.append(train_error)
+            plot_test_mse.append(test_error)
+
+            # ----------------------------------------------------
             # Select degree having the lowest Test MSE
             # ----------------------------------------------------
 
@@ -724,6 +799,17 @@ def run_assignment(x, y):
             )
 
     print("-" * 75)
+
+    # ------------------------------------------------------------
+    # Plot MSE vs Degree performance graph
+    # ------------------------------------------------------------
+
+    plot_mse_vs_degree(
+        plot_degrees,
+        plot_train_mse,
+        plot_test_mse,
+        best_degree
+    )
 
     # ------------------------------------------------------------
     # Display the best model
