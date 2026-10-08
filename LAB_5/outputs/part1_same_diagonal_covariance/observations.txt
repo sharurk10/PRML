@@ -1,0 +1,7 @@
+Part 1 - Same Diagonal Covariance Observation
+=============================================
+
+Test accuracy = 87.6167%
+Correct classifications = 5257 / 6000
+Misclassified samples = 743
+Class 3 has the largest number of misclassified samples.

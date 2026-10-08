@@ -1,0 +1,10 @@
+Same Diagonal Covariance - Test Results
+=======================================
+
+Confusion Matrix
+          Predicted 1  Predicted 2  Predicted 3
+Actual 1         1949           16           35
+Actual 2           28         1659          313
+Actual 3           34          317         1649
+
+Accuracy = 87.6167%
