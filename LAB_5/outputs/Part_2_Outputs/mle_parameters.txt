@@ -1,0 +1,26 @@
+PART 2 - Team 19 Full-Covariance MLE
+====================================
+
+Class 1
+Prior probability = 0.333333
+Estimated Mean =
+[ 466.474417 1022.145639]
+Estimated Covariance =
+[[18153.582875 24211.711053]
+ [24211.711053 92808.885735]]
+
+Class 2
+Prior probability = 0.333333
+Estimated Mean =
+[ 410.762861 1912.458889]
+Estimated Covariance =
+[[13024.286575 -8876.416296]
+ [-8876.416296 49983.218365]]
+
+Class 3
+Prior probability = 0.333333
+Estimated Mean =
+[ 583.013611 1427.099944]
+Estimated Covariance =
+[[23241.732242  7190.944533]
+ [ 7190.944533 57897.259928]]

@@ -1,0 +1,7 @@
+Part 2 - Team 19 Observation
+============================
+
+Test accuracy = 82.5926%
+Correct classifications = 223 / 270
+Misclassified samples = 47
+Class 3 has the largest number of misclassified samples.
