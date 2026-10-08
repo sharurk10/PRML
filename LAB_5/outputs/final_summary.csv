@@ -1,0 +1,6 @@
+Part,Experiment,Training Samples,Testing Samples,Accuracy (%)
+Part 1,Experiment 1: Same Isotropic Covariance,24000,6000,97.0
+Part 1,Experiment 2: Same Diagonal Covariance,24000,6000,87.61666666666666
+Part 1,Experiment 3: Same Full Covariance,24000,6000,85.9
+Part 1,Experiment 4: Different Covariance Matrices,24000,6000,88.26666666666667
+Part 2,Team 19 Full-Covariance MLE,1080,270,82.5925925925926
