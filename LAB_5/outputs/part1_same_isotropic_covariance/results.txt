@@ -1,0 +1,10 @@
+Same Isotropic Covariance - Test Results
+========================================
+
+Confusion Matrix
+          Predicted 1  Predicted 2  Predicted 3
+Actual 1         1956            3           41
+Actual 2            0         1956           44
+Actual 3           34           58         1908
+
+Accuracy = 97.0000%
