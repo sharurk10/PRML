@@ -1,0 +1,7 @@
+Part 1 - Different Diagonal Covariance Observation
+==================================================
+
+Test accuracy = 89.7500%
+Correct classifications = 5385 / 6000
+Misclassified samples = 615
+Class 2 has the largest number of misclassified samples.

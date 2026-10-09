@@ -1,0 +1,26 @@
+Different Diagonal Covariance - MLE Parameters
+==============================================
+
+Class 1
+Prior probability = 0.333333
+Estimated Mean =
+[4.983123 4.995102]
+Estimated Covariance =
+[[2.034902 0.      ]
+ [0.       0.98816 ]]
+
+Class 2
+Prior probability = 0.333333
+Estimated Mean =
+[8.999034 9.021011]
+Estimated Covariance =
+[[4.145787 0.      ]
+ [0.       1.955236]]
+
+Class 3
+Prior probability = 0.333333
+Estimated Mean =
+[5.004452 9.010225]
+Estimated Covariance =
+[[0.995805 0.      ]
+ [0.       2.976894]]
