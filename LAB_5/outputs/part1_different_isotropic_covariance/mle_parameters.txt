@@ -1,0 +1,26 @@
+Different Isotropic Covariance - MLE Parameters
+===============================================
+
+Class 1
+Prior probability = 0.333333
+Estimated Mean =
+[4.988066 4.995102]
+Estimated Covariance =
+[[1.002805 0.      ]
+ [0.       1.002805]]
+
+Class 2
+Prior probability = 0.333333
+Estimated Mean =
+[8.999317 9.021011]
+Estimated Covariance =
+[[2.014064 0.      ]
+ [0.       2.014064]]
+
+Class 3
+Prior probability = 0.333333
+Estimated Mean =
+[5.007711 9.010225]
+Estimated Covariance =
+[[2.982155 0.      ]
+ [0.       2.982155]]

@@ -1,0 +1,10 @@
+Different Isotropic Covariance - Test Results
+=============================================
+
+Confusion Matrix
+          Predicted 1  Predicted 2  Predicted 3
+Actual 1         1910            7           83
+Actual 2           16         1823          161
+Actual 3          132          226         1642
+
+Accuracy = 89.5833%
