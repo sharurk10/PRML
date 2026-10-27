@@ -1,0 +1,7 @@
+Part 1 - Same Isotropic Covariance Observation
+==============================================
+
+Test accuracy = 97.0000%
+Correct classifications = 5820 / 6000
+Misclassified samples = 180
+Class 3 has the largest number of misclassified samples.

@@ -1,0 +1,26 @@
+Same Full Covariance - MLE Parameters
+=====================================
+
+Class 1
+Prior probability = 0.333333
+Estimated Mean =
+[4.974526 4.987996]
+Estimated Covariance =
+[[4.067457 1.518146]
+ [1.518146 1.983607]]
+
+Class 2
+Prior probability = 0.333333
+Estimated Mean =
+[9.005842 9.019666]
+Estimated Covariance =
+[[4.067457 1.518146]
+ [1.518146 1.983607]]
+
+Class 3
+Prior probability = 0.333333
+Estimated Mean =
+[5.011364 9.009934]
+Estimated Covariance =
+[[4.067457 1.518146]
+ [1.518146 1.983607]]

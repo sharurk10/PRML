@@ -1,0 +1,7 @@
+Part 1 - Different Covariance Matrices Observation
+==================================================
+
+Test accuracy = 88.2667%
+Correct classifications = 5296 / 6000
+Misclassified samples = 704
+Class 3 has the largest number of misclassified samples.

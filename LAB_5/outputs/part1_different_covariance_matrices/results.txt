@@ -1,0 +1,10 @@
+Different Covariance Matrices - Test Results
+============================================
+
+Confusion Matrix
+          Predicted 1  Predicted 2  Predicted 3
+Actual 1         1910           15           75
+Actual 2           68         1703          229
+Actual 3          145          172         1683
+
+Accuracy = 88.2667%

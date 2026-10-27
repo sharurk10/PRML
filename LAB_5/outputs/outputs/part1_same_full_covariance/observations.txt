@@ -1,0 +1,7 @@
+Part 1 - Same Full Covariance Observation
+=========================================
+
+Test accuracy = 85.9000%
+Correct classifications = 5154 / 6000
+Misclassified samples = 846
+Class 2 has the largest number of misclassified samples.

@@ -1,0 +1,10 @@
+Same Full Covariance - Test Results
+===================================
+
+Confusion Matrix
+          Predicted 1  Predicted 2  Predicted 3
+Actual 1         1803          126           71
+Actual 2          144         1637          219
+Actual 3           56          230         1714
+
+Accuracy = 85.9000%
